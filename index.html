@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gleam - To Do</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --white: #ffffff;
+            --black: #000000;
+            --gray: #888888;
+            --light-gray: #e0e0e0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            min-height: 100vh;
+        }
+        
+        /* Auth Page */
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-box {
+            width: 100%;
+            max-width: 420px;
+            border: 3px solid var(--black);
+            padding: 48px;
+        }
+        
+        .logo {
+            font-size: 42px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+        }
+        
+        .tagline {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--black);
+            font-size: 15px;
+            background: var(--white);
+            color: var(--black);
+        }
+        
+        input:focus {
+            outline: none;
+            background: var(--light-gray);
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--black);
+            color: var(--white);
+            border: 2px solid var(--black);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: var(--white);
+            color: var(--black);
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            background: var(--white);
+            color: var(--black);
+            border: 2px solid var(--black);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .auth-switch a {
+            color: var(--black);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid var(--black);
+            cursor: pointer;
+        }
+        
+        .error-msg {
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Main App */
+        .app {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--black);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .username {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        /* Add Todo */
+        .add-todo-box {
+            border: 2px solid var(--black);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .add-todo-box input {
+            border: 2px solid var(--black);
+            margin-bottom: 16px;
+        }
+        
+        /* Todo List */
+        .todo-list {
+            list-style: none;
+        }
+        
+        .todo-item {
+            border: 2px solid var(--black);
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+        
+        .todo-item:hover {
+            background: var(--light-gray);
+        }
+        
+        .todo-item.completed {
+            opacity: 0.5;
+            border-color: var(--gray);
+        }
+        
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--black);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .checkbox.checked {
+            background: var(--black);
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            color: var(--white);
+            font-size: 14px;
+        }
+        
+        .todo-content {
+            flex: 1;
+        }
+        
+        .todo-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .todo-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .delete-btn {
+            padding: 8px 12px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            border: 2px dashed var(--light-gray);
+        }
+        
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            color: var(--gray);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        
+        .stats span {
+            font-weight: 600;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <!-- Auth Page -->
+    <div class="auth-page" id="authPage">
+        <div class="auth-box">
+            <div class="logo">GLEAM</div>
+            <div class="tagline">Stay organized. Stay focused.</div>
+            
+            <div id="errorMsg" class="error-msg hidden"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Username or Email</label>
+                    <input type="text" id="loginId" placeholder="Enter username or email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+                <button class="btn-primary" onclick="login()">Sign In</button>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account? <a onclick="toggleAuth()">Create one</a></p>
+                </div>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signupForm" class="hidden">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" placeholder="johndoe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="john@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Create password">
+                </div>
+                <button class="btn-primary" onclick="signup()">Create Account</button>
+                
+                <div class="auth-switch">
+                    <p>Already have an account? <a onclick="toggleAuth()">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app hidden" id="mainApp">
+        <div class="header">
+            <h1>My Tasks</h1>
+            <div class="user-info">
+                <span class="username" id="displayUsername"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <span id="totalCount">0 total</span>
+            <span id="pendingCount">0 pending</span>
+            <span id="completedCount">0 completed</span>
+        </div>
+        
+        <div class="add-todo-box">
+            <input type="text" id="newTask" placeholder="What needs to be done?" onkeypress="if(event.key==='Enter') addTodo()">
+            <button class="btn-primary" onclick="addTodo()">Add Task</button>
+        </div>
+        
+        <ul class="todo-list" id="todoList">
+            <div class="loading">Loading tasks...</div>
+        </ul>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycby9HFkO9BbbDRgkYiat3GU3-_Vdd_UmRVSFAZhW_ji1BDddLuWohg7k-9D12n932O0V/exec';
+        
+        let currentUser = null;
+        let todos = [];
+        
+        // Check session
+        window.onload = function() {
+            const saved = localStorage.getItem('gleam_todo_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                showApp();
+            }
+        };
+        
+        function toggleAuth() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('signupForm').classList.toggle('hidden');
+            document.getElementById('errorMsg').classList.add('hidden');
+        }
+        
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+        
+        async function signup() {
+            const data = {
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            };
+            
+            if (!data.username || !data.email || !data.password) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const res = await fetch(API_URL + '?action=signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    currentUser = result;
+                    localStorage.setItem('gleam_todo_user', JSON.stringify(currentUser));
+                    showApp();
+                } else {
+                    showError(result.error || 'Signup failed');
+                }
+            } catch (e) {
+                showError('Network error');
+            }
+        }
+        
+        async function login() {
+            const data = {
+                loginId: document.getElementById('loginId').value.trim(),
+                password: document.getElementById('loginPassword').value
+            };
+            
+            if (!data.loginId || !data.password) {
+                showError('Please enter username/email and password');
+                return;
+            }
+            
+            try {
+                const res = await fetch(API_URL + '?action=login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    currentUser = result;
+                    localStorage.setItem('gleam_todo_user', JSON.stringify(currentUser));
+                    showApp();
+                } else {
+                    showError(result.error || 'Login failed');
+                }
+            } catch (e) {
+                showError('Network error');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('gleam_todo_user');
+            currentUser = null;
+            location.reload();
+        }
+        
+        function showApp() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('displayUsername').textContent = '@' + currentUser.username;
+            loadTodos();
+        }
+        
+        async function loadTodos() {
+            try {
+                const res = await fetch(API_URL + '?action=getTodos&userId=' + currentUser.userId);
+                const data = await res.json();
+                
+                if (data.success) {
+                    todos = data.todos;
+                    renderTodos();
+                }
+            } catch (e) {
+                document.getElementById('todoList').innerHTML = '<div class="empty-state"><h3>Error loading tasks</h3></div>';
+            }
+        }
+        
+        function renderTodos() {
+            const list = document.getElementById('todoList');
+            
+            // Update stats
+            const total = todos.length;
+            const completed = todos.filter(t => t.status === 'completed').length;
+            const pending = total - completed;
+            
+            document.getElementById('totalCount').textContent = total + ' total';
+            document.getElementById('pendingCount').textContent = pending + ' pending';
+            document.getElementById('completedCount').textContent = completed + ' completed';
+            
+            if (todos.length === 0) {
+                list.innerHTML = '<div class="empty-state"><h3>No tasks yet</h3><p>Add your first task above</p></div>';
+                return;
+            }
+            
+            list.innerHTML = todos.map(todo => `
+                <li class="todo-item ${todo.status === 'completed' ? 'completed' : ''}">
+                    <div class="checkbox ${todo.status === 'completed' ? 'checked' : ''}" onclick="toggleTodo(${todo.todoId}, '${todo.status}')"></div>
+                    <div class="todo-content">
+                        <div class="todo-text">${escapeHtml(todo.task)}</div>
+                        <div class="todo-date">${escapeHtml(todo.date)}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTodo(${todo.todoId})">Delete</button>
+                </li>
+            `).join('');
+        }
+        
+        async function addTodo() {
+            const input = document.getElementById('newTask');
+            const task = input.value.trim();
+            
+            if (!task) return;
+            
+            try {
+                const res = await fetch(API_URL + '?action=addTodo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify({
+                        userId: currentUser.userId,
+                        task: task
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    input.value = '';
+                    loadTodos();
+                }
+            } catch (e) {}
+        }
+        
+        async function toggleTodo(todoId, currentStatus) {
+            const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+            
+            try {
+                await fetch(API_URL + '?action=updateTodo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify({
+                        todoId: todoId,
+                        status: newStatus
+                    })
+                });
+                loadTodos();
+            } catch (e) {}
+        }
+        
+        async function deleteTodo(todoId) {
+            if (!confirm('Delete this task?')) return;
+            
+            try {
+                await fetch(API_URL + '?action=deleteTodo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify({todoId: todoId})
+                });
+                loadTodos();
+            } catch (e) {}
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+
+</body>
+</html>
